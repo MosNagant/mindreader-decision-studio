@@ -1,0 +1,11 @@
+{
+  "scenario_id": "example_scenario",
+  "question": "Which option would you choose?",
+  "options": [
+    "Choice A",
+    "Choice B",
+    "Choice C",
+    "Choice D"
+  ],
+  "difficulty": 2
+}

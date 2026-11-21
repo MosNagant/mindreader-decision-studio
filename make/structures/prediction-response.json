@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "intent": "submit_choice",
+  "request_id": "example_request",
+  "data": {
+    "predicted_choice": "B",
+    "confidence": 0.6,
+    "is_correct": true,
+    "ai_score": 5,
+    "user_score": 0
+  },
+  "error": "example error",
+  "server_ts": "2025-01-01T00:00:00Z"
+}

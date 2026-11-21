@@ -1,0 +1,501 @@
+{
+  "name": "MindReader_start_game",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "interface": [
+          {
+            "name": "intent",
+            "type": "text"
+          },
+          {
+            "name": "user_id",
+            "type": "text"
+          },
+          {
+            "name": "request_id",
+            "type": "text"
+          },
+          {
+            "name": "round_no",
+            "type": "number"
+          },
+          {
+            "name": "scenario_id",
+            "type": "text"
+          },
+          {
+            "name": "choice",
+            "type": "text"
+          },
+          {
+            "name": "decision_ms",
+            "type": "number"
+          },
+          {
+            "name": "difficulty_level",
+            "type": "number"
+          },
+          {
+            "name": "scenario_topic",
+            "type": "text"
+          },
+          {
+            "name": "force_refresh",
+            "type": "boolean"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook"
+          },
+          {
+            "name": "maxResults",
+            "type": "number",
+            "label": "Maximum number of results"
+          }
+        ],
+        "designer": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 11,
+      "module": "http:MakeRequest",
+      "version": 4,
+      "parameters": {
+        "tlsType": "",
+        "authenticationType": "apiKeyConnection"
+      },
+      "mapper": {
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "method": "post",
+        "timeout": "40",
+        "contentType": "json",
+        "inputMethod": "jsonString",
+        "shareCookies": false,
+        "parseResponse": true,
+        "allowRedirects": true,
+        "stopOnHttpError": true,
+        "jsonStringBodyContent": "{\n  \"model\": \"openrouter/free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are MindReader, an AI behavioral choice game assistant. Generate one realistic behavioral decision scenario for the user. The scenario should be based on everyday life, workplace interactions, interpersonal relationships, or personal decision-making. It should reveal meaningful behavioral tendencies such as communication, responsibility, risk preference, emotional control, cooperation, or decision-making style. Return exactly one valid JSON object containing scenario_id, question, options, and difficulty. scenario_id must be a short unique-looking identifier. question must describe a clear and realistic situation and end with a decision question. options MUST be an array of exactly four distinct and plausible strings, labeled A, B, C, and D. Each option should represent a meaningfully different response strategy, without an obviously correct answer. difficulty MUST be an integer from 1 to 5. Ensure the question and all options are logically consistent. Return JSON only, without Markdown code fences or explanations.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate one new behavioral decision scenario. Prefer realistic situations with enough context for the user to make a meaningful choice. Ensure all four options are reasonable but reflect different behavioral tendencies.\"\n    }\n  ],\n  \"temperature\": 0.7,\n  \"max_tokens\": 4096,\n  \"reasoning\": {\n    \"effort\": \"low\"\n  }\n}",
+        "requestCompressedContent": true
+      },
+      "metadata": {
+        "expect": [
+          {
+            "name": "url",
+            "type": "url",
+            "label": "URL"
+          },
+          {
+            "name": "method",
+            "type": "select",
+            "label": "Method"
+          },
+          {
+            "name": "headers",
+            "type": "array",
+            "label": "Headers",
+            "spec": {
+              "name": "value",
+              "type": "collection",
+              "label": "Header",
+              "spec": [
+                {
+                  "name": "name",
+                  "type": "text",
+                  "label": "Name"
+                },
+                {
+                  "name": "value",
+                  "type": "text",
+                  "label": "Value"
+                }
+              ]
+            }
+          },
+          {
+            "name": "queryParameters",
+            "type": "array",
+            "label": "Query parameters",
+            "spec": {
+              "name": "value",
+              "type": "collection",
+              "label": "Parameter",
+              "spec": [
+                {
+                  "name": "name",
+                  "type": "text",
+                  "label": "Name"
+                },
+                {
+                  "name": "value",
+                  "type": "text",
+                  "label": "Value"
+                }
+              ]
+            }
+          },
+          {
+            "name": "contentType",
+            "type": "select",
+            "label": "Body content type"
+          },
+          {
+            "name": "parseResponse",
+            "type": "boolean",
+            "label": "Parse response"
+          },
+          {
+            "name": "stopOnHttpError",
+            "type": "boolean",
+            "label": "Return error if HTTP request fails"
+          },
+          {
+            "name": "timeout",
+            "type": "uinteger",
+            "label": "Timeout"
+          },
+          {
+            "name": "allowRedirects",
+            "type": "boolean",
+            "label": "Allow redirects"
+          },
+          {
+            "name": "shareCookies",
+            "type": "boolean",
+            "label": "Share cookies with other HTTP modules"
+          },
+          {
+            "name": "requestCompressedContent",
+            "type": "boolean",
+            "label": "Request compressed content"
+          },
+          {
+            "name": "inputMethod",
+            "type": "select",
+            "label": "Body input method"
+          },
+          {
+            "name": "jsonStringBodyContent",
+            "type": "text",
+            "label": "Body content"
+          },
+          {
+            "name": "paginationType",
+            "type": "select",
+            "label": "Pagination type"
+          }
+        ],
+        "interface": [
+          {
+            "name": "data",
+            "type": "any",
+            "label": "Data"
+          },
+          {
+            "name": "statusCode",
+            "type": "number",
+            "label": "Status Code"
+          },
+          {
+            "name": "headers",
+            "type": "collection",
+            "label": "Headers",
+            "spec": [
+              {
+                "name": "content-length",
+                "type": "text",
+                "label": "Content-Length"
+              },
+              {
+                "name": "content-encoding",
+                "type": "text",
+                "label": "Content-Encoding"
+              },
+              {
+                "name": "content-type",
+                "type": "text",
+                "label": "Content-Type"
+              },
+              {
+                "name": "server",
+                "type": "text",
+                "label": "Server"
+              },
+              {
+                "name": "cache-control",
+                "type": "text",
+                "label": "Cache-Control"
+              },
+              {
+                "name": "set-cookie",
+                "type": "array",
+                "label": "Set-Cookie",
+                "spec": {
+                  "type": "text"
+                }
+              }
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authenticationType",
+            "type": "select",
+            "label": "Authentication type"
+          },
+          {
+            "name": "tlsType",
+            "type": "select",
+            "label": "Transport layer security (TLS)"
+          },
+          {
+            "name": "proxyKeychain",
+            "type": "keychain:proxy",
+            "label": "Proxy"
+          },
+          {
+            "name": "apiKeyAccount",
+            "type": "account:http-v4-apikey",
+            "label": "Connection"
+          }
+        ],
+        "designer": {
+          "x": 300,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 13,
+      "module": "json:ParseJSON",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "json": "{{trim(replace(replace(11.data.choices[].message.content; \"```json\"; emptystring); \"```\"; emptystring))}}"
+      },
+      "metadata": {
+        "expect": [
+          {
+            "name": "json",
+            "type": "text",
+            "label": "JSON string"
+          }
+        ],
+        "interface": [
+          {
+            "name": "scenario_id",
+            "type": "text",
+            "label": "Scenario ID"
+          },
+          {
+            "name": "question",
+            "type": "text",
+            "label": "Question"
+          },
+          {
+            "name": "options",
+            "type": "array",
+            "label": "Options",
+            "spec": {
+              "type": "text"
+            }
+          },
+          {
+            "name": "difficulty",
+            "type": "number",
+            "label": "Difficulty"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "type": "udt",
+            "label": "Data structure"
+          }
+        ],
+        "designer": {
+          "x": 600,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 18,
+      "module": "json:CreateJSON",
+      "version": 1,
+      "parameters": {
+        "space": ""
+      },
+      "filter": null,
+      "mapper": {
+        "ok": true,
+        "data": {
+          "options": "{{13.options}}",
+          "question": "{{13.question}}",
+          "difficulty": "{{13.difficulty}}",
+          "scenario_id": "{{13.scenario_id}}"
+        },
+        "error": "{{null}}",
+        "intent": "{{1.intent}}",
+        "server_ts": "{{formatDate(now; \"YYYY-MM-DDTHH:mm:ss\"; \"\"\"UTC\"\"\")}}Z",
+        "request_id": "{{1.request_id}}"
+      },
+      "metadata": {
+        "expect": [
+          {
+            "name": "ok",
+            "type": "boolean",
+            "label": "Ok"
+          },
+          {
+            "name": "intent",
+            "type": "text",
+            "label": "Intent"
+          },
+          {
+            "name": "request_id",
+            "type": "text",
+            "label": "Request ID"
+          },
+          {
+            "name": "data",
+            "type": "collection",
+            "label": "Data",
+            "spec": [
+              {
+                "name": "scenario_id",
+                "type": "text",
+                "label": "Scenario ID"
+              },
+              {
+                "name": "question",
+                "type": "text",
+                "label": "Question"
+              },
+              {
+                "name": "options",
+                "type": "array",
+                "label": "Options",
+                "spec": {
+                  "name": "value",
+                  "type": "text"
+                }
+              },
+              {
+                "name": "difficulty",
+                "type": "number",
+                "label": "Difficulty"
+              }
+            ]
+          },
+          {
+            "name": "error",
+            "type": "text",
+            "label": "Error"
+          },
+          {
+            "name": "server_ts",
+            "type": "text",
+            "label": "Server ts"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "type": "udt",
+            "label": "Data structure"
+          },
+          {
+            "name": "space",
+            "type": "select",
+            "label": "Indentation"
+          }
+        ],
+        "designer": {
+          "x": 900,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 14,
+      "module": "gateway:WebhookRespond",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "body": "{{18.json}}",
+        "status": "200",
+        "headers": []
+      },
+      "metadata": {
+        "expect": [
+          {
+            "name": "status",
+            "type": "uinteger",
+            "label": "Status"
+          },
+          {
+            "name": "body",
+            "type": "any",
+            "label": "Body"
+          },
+          {
+            "name": "headers",
+            "type": "array",
+            "label": "Custom headers",
+            "spec": [
+              {
+                "name": "key",
+                "type": "text",
+                "label": "Key"
+              },
+              {
+                "name": "value",
+                "type": "text",
+                "label": "Value"
+              }
+            ]
+          }
+        ],
+        "designer": {
+          "x": 1200,
+          "y": 0
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "eu1.make.com",
+    "notes": []
+  }
+}

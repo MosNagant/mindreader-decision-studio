@@ -1,0 +1,11 @@
+{
+  "model": "openrouter/free",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Return JSON."
+    }
+  ],
+  "temperature": 0.1,
+  "max_tokens": 2000
+}

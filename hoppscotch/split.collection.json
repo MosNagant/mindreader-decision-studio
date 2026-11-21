@@ -1,0 +1,69 @@
+{
+  "v": 2,
+  "name": "MindReader 三场景 · 01 → 02 → 03",
+  "folders": [],
+  "auth": {
+    "authType": "inherit",
+    "authActive": false
+  },
+  "headers": [],
+  "requests": [
+    {
+      "v": "3",
+      "name": "01 新一轮：LLM 出题（自动生成新用户）",
+      "endpoint": "<<start_game_url>>",
+      "method": "POST",
+      "params": [],
+      "headers": [],
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "preRequestScript": "function requestId(tag) {\n  return \"hopp_\" + tag + \"_\" + Date.now() + \"_\" + Math.random().toString(36).slice(2, 9);\n}\nfunction readState(key) {\n  const raw = pw.env.get(key);\n  if (!raw) throw new Error(\"缺少前一步结果，请按集合中的顺序发送请求。\");\n  return JSON.parse(raw);\n}\nfunction currentUser() {\n  const user = pw.env.get(\"user_id\");\n  if (!user) throw new Error(\"请先发送 01 获取题目。\");\n  return user;\n}\npw.env.set(\"mr_payload\", \"\");\nconst user = \"llm_test_\" + Date.now() + \"_\" + Math.random().toString(36).slice(2, 10);\npw.env.set(\"user_id\", user);\npw.env.set(\"mr_profile\", \"\");\npw.env.set(\"mr_profile_request\", \"\");\nconst round = 1;\nconst difficulty = Number(pw.env.get(\"difficulty_level\") || \"2\");\nif (!Number.isInteger(difficulty) || difficulty < 1 || difficulty > 5) throw new Error(\"difficulty_level 应为 1 到 5。\");\nconst pending = {user_id: user, round_no: round, request_id: requestId(\"start\")};\npw.env.set(\"mr_round_counter\", JSON.stringify(pending));\npw.env.set(\"mr_pending\", JSON.stringify(pending));\npw.env.set(\"mr_current\", \"\");\npw.env.set(\"mr_submit_ok\", \"\");\npw.env.set(\"mr_payload\", JSON.stringify({\n  intent: \"start_game\", user_id: user, request_id: pending.request_id,\n  round_no: round, difficulty_level: difficulty,\n  scenario_topic: pw.env.get(\"scenario_topic\") || \"workplace\"\n}));\n",
+      "testScript": "const r = typeof pw.response.body === \"string\" ? JSON.parse(pw.response.body) : pw.response.body;\nconst d = r && r.data;\nconst valid = pw.response.status === 200 && r.ok === true && d &&\n  typeof d.scenario_id === \"string\" && d.scenario_id.length > 0 &&\n  typeof d.question === \"string\" && d.question.length > 0 &&\n  Array.isArray(d.options) && d.options.length === 4 &&\n  d.options.every(x => typeof x === \"string\" && x.length > 0) &&\n  Number.isInteger(d.difficulty) && d.difficulty >= 1 && d.difficulty <= 5;\npw.test(\"出题成功，包含题干、四个选项和有效难度\", () => pw.expect(Boolean(valid)).toBe(true));\nif (!valid) throw new Error(\"出题响应不完整，未保存本轮题目。请查看响应及 Make 执行记录。\");\nconst pending = JSON.parse(pw.env.get(\"mr_pending\"));\nif (r.request_id !== pending.request_id) throw new Error(\"返回的 request_id 与本轮请求不一致。\");\npw.env.set(\"mr_current\", JSON.stringify({\n  user_id: pending.user_id, round_no: pending.round_no,\n  scenario_id: d.scenario_id, question: d.question,\n  options: d.options, difficulty: d.difficulty, shown_at: Date.now()\n}));\n",
+      "body": {
+        "contentType": "application/json",
+        "body": "<<mr_payload>>"
+      },
+      "requestVariables": []
+    },
+    {
+      "v": "3",
+      "name": "02 选择答案：预测计分并保存 answers、scores",
+      "endpoint": "<<submit_choice_url>>",
+      "method": "POST",
+      "params": [],
+      "headers": [],
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "preRequestScript": "function requestId(tag) {\n  return \"hopp_\" + tag + \"_\" + Date.now() + \"_\" + Math.random().toString(36).slice(2, 9);\n}\nfunction readState(key) {\n  const raw = pw.env.get(key);\n  if (!raw) throw new Error(\"缺少前一步结果，请按集合中的顺序发送请求。\");\n  return JSON.parse(raw);\n}\nfunction currentUser() {\n  const user = pw.env.get(\"user_id\");\n  if (!user) throw new Error(\"请先发送 01 获取题目。\");\n  return user;\n}\npw.env.set(\"mr_payload\", \"\");\nconst round = readState(\"mr_current\");\nif (round.user_id !== currentUser()) throw new Error(\"user_id 已改变，请重新获取题目。\");\nif (pw.env.get(\"mr_submit_ok\") === round.user_id) throw new Error(\"本轮已提交成功，请发送 03 生成画像；下一轮从 01 开始。\");\nconst choice = String(pw.env.get(\"choice\") || \"B\").trim().toUpperCase();\nif (![\"A\", \"B\", \"C\", \"D\"].includes(choice)) throw new Error(\"choice 只能是 A、B、C 或 D。\");\nconst payload = {\n  intent: \"submit_choice\", user_id: round.user_id, request_id: requestId(\"choice\"),\n  round_no: round.round_no, scenario_id: round.scenario_id,\n  question: round.question, options: round.options, choice,\n  decision_ms: Math.max(0, Date.now() - round.shown_at), difficulty_level: round.difficulty\n};\npw.env.set(\"mr_submit_ok\", \"\");\npw.env.set(\"mr_pending_submission\", JSON.stringify(payload));\npw.env.set(\"mr_payload\", JSON.stringify(payload));\n",
+      "testScript": "const r = typeof pw.response.body === \"string\" ? JSON.parse(pw.response.body) : pw.response.body;\nconst valid = pw.response.status === 200 && r && r.ok === true && r.data && [\"A\", \"B\", \"C\", \"D\"].includes(r.data.predicted_choice);\npw.test(\"提交成功并返回有效预测\", () => pw.expect(Boolean(valid)).toBe(true));\nif (!valid) throw new Error(\"提交未成功，不继续画像测试。\");\nconst sent = JSON.parse(pw.env.get(\"mr_pending_submission\"));\nif (r.request_id !== sent.request_id) throw new Error(\"提交响应 request_id 不一致。\");\nconst correct = sent.choice === r.data.predicted_choice;\npw.test(\"计分与预测一致\", () => {\n  pw.expect(r.data.is_correct).toBe(correct);\n  pw.expect(r.data.ai_score).toBe(correct ? 5 : 0);\n  pw.expect(r.data.user_score).toBe(correct ? 0 : 5);\n});\npw.env.set(\"mr_last_submission\", JSON.stringify(sent));\npw.env.set(\"mr_submit_ok\", sent.user_id);\n",
+      "body": {
+        "contentType": "application/json",
+        "body": "<<mr_payload>>"
+      },
+      "requestVariables": []
+    },
+    {
+      "v": "3",
+      "name": "03 LLM 生成新画像并保存 profiles",
+      "endpoint": "<<generate_profile_url>>",
+      "method": "POST",
+      "params": [],
+      "headers": [],
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "preRequestScript": "function requestId(tag) {\n  return \"hopp_\" + tag + \"_\" + Date.now() + \"_\" + Math.random().toString(36).slice(2, 9);\n}\nfunction readState(key) {\n  const raw = pw.env.get(key);\n  if (!raw) throw new Error(\"缺少前一步结果，请按集合中的顺序发送请求。\");\n  return JSON.parse(raw);\n}\nfunction currentUser() {\n  const user = pw.env.get(\"user_id\");\n  if (!user) throw new Error(\"请先发送 01 获取题目。\");\n  return user;\n}\npw.env.set(\"mr_payload\", \"\");\nconst user = currentUser();\nif (pw.env.get(\"mr_submit_ok\") !== user) throw new Error(\"请先成功提交当前用户的答案。\");\npw.env.set(\"mr_profile\", \"\");\npw.env.set(\"mr_payload\", JSON.stringify({\n  intent: \"generate_profile\", user_id: user, request_id: requestId(\"profile\"),\n  force_refresh: true\n}));\n\npw.env.set(\"mr_profile_request\", pw.env.get(\"mr_payload\"));\n",
+      "testScript": "const r = typeof pw.response.body === \"string\" ? JSON.parse(pw.response.body) : pw.response.body;\nconst d = r && r.data;\nconst valid = pw.response.status === 200 && r.ok === true && d &&\n  typeof d.personality_type === \"string\" && typeof d.summary === \"string\" &&\n  Array.isArray(d.traits) && d.traits.length === 3;\npw.test(\"返回画像及三个特征\", () => pw.expect(Boolean(valid)).toBe(true));\nif (!valid) throw new Error(\"画像返回不完整。\");\nconst sent = JSON.parse(pw.env.get(\"mr_profile_request\"));\nif (r.request_id !== sent.request_id) throw new Error(\"画像响应 request_id 不一致。\");\npw.env.set(\"mr_profile\", JSON.stringify({user_id: pw.env.get(\"user_id\"), data: d}));\n",
+      "body": {
+        "contentType": "application/json",
+        "body": "<<mr_payload>>"
+      },
+      "requestVariables": []
+    }
+  ]
+}

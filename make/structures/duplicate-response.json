@@ -1,0 +1,11 @@
+{
+  "ok": false,
+  "intent": "submit_choice",
+  "request_id": "example_request",
+  "data": {},
+  "error": {
+    "code": "E_DUPLICATE_ROUND",
+    "message": "Example duplicate round."
+  },
+  "server_ts": "2025-01-01T00:00:00Z"
+}

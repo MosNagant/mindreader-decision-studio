@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="make-history-url" content="">
+  <meta name="theme-color" content="#f5f5f8">
+  <meta name="description" content="MindReader 决策实验台。通过 Make 获取情境题，提交选择，查看比分、运行记录和决策画像。">
+  <title>MindReader · 决策实验台</title>
+  <link rel="icon" href="assets/mark.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="session.css?v=5">
+  <script src="engine.js?v=3" defer></script>
+  <script src="sessions.js?v=3" defer></script>
+  <script src="make-client.js?v=4" defer></script>
+  <script src="app.js?v=5" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+  <header class="top"><div class="bar">
+    <a href="#play" class="brand" aria-label="MindReader 实验台"><span class="logo" aria-hidden="true"><i></i><i></i><i></i></span><span>MindReader</span></a>
+    <nav aria-label="主导航"><a href="#play" data-tab="play"><i data-icon="grid"></i>实验台</a><a href="#history" data-tab="history"><i data-icon="history"></i>对局记录</a><a href="#profile" data-tab="profile"><i data-icon="finger"></i>决策画像</a></nav>
+    <div class="head-side"><span class="mode"><b></b><span id="mode-name">Make 工作流</span></span><button class="help-button" id="help-button" title="玩法说明" aria-label="打开玩法说明"><i data-icon="help"></i></button></div>
+  </div></header>
+  <main id="main" tabindex="-1"></main>
+  <dialog id="help" aria-labelledby="help-title"><form method="dialog"><button class="dialog-close" aria-label="关闭"><i data-icon="close"></i></button></form><div class="dialog-symbol"><i data-icon="orbit"></i></div><h2 id="help-title">玩法说明</h2><ol class="guide">
+    <li><strong>选择主题和题数</strong><p>从职场、日常和社交中选一个主题。默认做 8 题，也可以选 5 题或 12 题。</p></li>
+    <li><strong>获取题目并提交</strong><p>每题由 Make 工作流调用 AI 生成。选择 A 至 D 其中一项，再提交答案。</p></li>
+    <li><strong>查看本题结果</strong><p>Make 将答案和比分写入 Google Sheets，并返回预测和得分。收到确认后即可进入下一题。</p></li>
+    <li><strong>查看本次画像</strong><p>答满题数或提前结束时，Make 用本次已提交的答案生成画像。可在运行记录中查看每次请求的状态。</p></li>
+  </ol><div class="local-note"><i data-icon="device"></i><span>当前浏览器保留每次测试的记录。旧版本地模拟也可在对局记录中继续或回看。</span></div></dialog>
+  <dialog id="export-dialog" aria-labelledby="export-title">
+    <header class="export-heading">
+      <h2 id="export-title" tabindex="-1">测试报告</h2>
+      <form method="dialog"><button class="help-button" aria-label="关闭报告"><i data-icon="close"></i></button></form>
+    </header>
+    <div id="export-content" class="export-content"></div>
+    <footer class="export-footer"><button type="button" id="download-report" class="btn">下载文本报告 (.txt)</button></footer>
+  </dialog>
+  <div id="notice" class="sr" role="status" aria-live="polite"></div>
+  <noscript>请启用 JavaScript 以进入决策实验台。</noscript>
+</body></html>

@@ -1,0 +1,12 @@
+{
+  "name": "mindreader-decision-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "build": "node web/scripts/build.mjs",
+    "test": "node web/scripts/build.mjs && node web/scripts/validate-artifact.mjs",
+    "start": "node web/scripts/build.mjs && node web/scripts/serve.mjs"
+  }
+}

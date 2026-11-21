@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "intent": "generate_profile",
+  "request_id": "example_request",
+  "data": {
+    "personality_type": "Collaborative",
+    "traits": [
+      {
+        "name": "Cooperation",
+        "score": 70
+      }
+    ],
+    "summary": "This fictional example weighs the group’s needs.",
+    "evidence_rounds": 1,
+    "confidence_level": "low"
+  },
+  "error": "example error",
+  "server_ts": "2025-01-01T00:00:00Z"
+}

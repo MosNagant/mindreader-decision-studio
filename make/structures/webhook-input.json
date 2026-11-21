@@ -1,0 +1,19 @@
+{
+  "intent": "submit_choice",
+  "user_id": "example_user",
+  "request_id": "example_request",
+  "round_no": 1,
+  "scenario_id": "example_scenario",
+  "choice": "B",
+  "decision_ms": 1000,
+  "difficulty_level": 2,
+  "scenario_topic": "workplace",
+  "force_refresh": false,
+  "question": "Which option would you choose?",
+  "options": [
+    "Choice A",
+    "Choice B",
+    "Choice C",
+    "Choice D"
+  ]
+}
